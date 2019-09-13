@@ -47,6 +47,11 @@ xSample = linspace(startAngle, endAngle, imageSize(3));
 % Holder for the horizontal translation parameter of the data
 param3 = zeros(imageSize(1), imageSize(2));
 
+% Type and nan cleaning to handle pixel stacks that are entirely zero (only
+% occurs when the image has been adjusted for tiling).
+normalized = single(sample);
+normalized(isnan(normalized)) = 0;
+
 for i = 1 : imageSize(1)
     
     for j = 1 : imageSize(2)
@@ -54,7 +59,13 @@ for i = 1 : imageSize(1)
         % Calculate the horizontal translation via comparison of where the
         % max value occured
         maxValX = xSample(find(normalized(i,j,:) == 1, 1));
-        param3(i,j) = maxValX - param3Expected;
+        
+        % Sets all zero-only pixel stacks to zero. 
+        if(isempty(maxValX))
+            param3(i,j) = 0;
+        else
+            param3(i,j) = maxValX - param3Expected;
+        end
         
     end
     
