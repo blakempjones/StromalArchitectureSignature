@@ -8,7 +8,7 @@ function rSquared = ComputeRSquared(sample, startAngle, endAngle, stepSize)
 % sample: a 3D matrix representation of an image stack where the third
 % dimension corresponds to respective images.
 % startAngle: Tau angle at which imaging began. For this code the choice of
-% angles can be arbitrary so 1 should typically be used.
+% angles can be arbitrary so 5 should typically be used.
 % endAngle: Tau angle at which imaging ended. 90 is the typical value.
 % stepSize: Incremental difference used in the calculation of the
 % theoretical curve.
@@ -23,13 +23,11 @@ imageSize = size(sample);
 normalized = single(sample);
 normalized(isnan(normalized)) = 0;
 
-% Normalization of the sample to be between 1 and -1
+% Normalization of the sample to be between 1 and 0
 mins = min(normalized, [], 3);
 normalized = normalized - mins;
 maxs = max(normalized, [], 3);
 normalized = normalized ./ maxs;
-normalized = normalized - 0.5;
-normalized = normalized .* 2;
 
 % Frequency parameter, known from theory.
 param2 = 2;
@@ -44,32 +42,19 @@ param3Expected = x90(find(param3Expected == max(param3Expected), 1));
 % Values at which the PLM was sampled (i.e. imaged)
 xSample = linspace(startAngle, endAngle, imageSize(3));
 
-% Holder for the horizontal translation parameter of the data
-param3 = zeros(imageSize(1), imageSize(2));
-
-% Type and nan cleaning to handle pixel stacks that are entirely zero (only
-% occurs when the image has been adjusted for tiling).
-normalized = single(sample);
+% Second round of nan cleaning to handle pixel stacks that are entirely 
+% zero (only occurs when the image has been adjusted for tiling).
 normalized(isnan(normalized)) = 0;
 
-for i = 1 : imageSize(1)
-    
-    for j = 1 : imageSize(2)
-        
-        % Calculate the horizontal translation via comparison of where the
-        % max value occured
-        maxValX = xSample(find(normalized(i,j,:) == 1, 1));
-        
-        % Sets all zero-only pixel stacks to zero. 
-        if(isempty(maxValX))
-            param3(i,j) = 0;
-        else
-            param3(i,j) = maxValX - param3Expected;
-        end
-        
-    end
-    
-end
+% Calculate the horizontal translation via comparison of where the
+% max value occured
+[~,maxValX] = max(normalized, [], 3);
+
+% Scale such that maxValX represents an angle and not a position
+maxValX = startAngle + (maxValX - 1) * stepSize;
+
+% Calculate the horzontal shift (observed - expected)
+param3 = maxValX - param3Expected;
 
 % Create a matrix the same size as the input and store, along the 3rd
 % dimension the expected results (this time calculated using the correct
