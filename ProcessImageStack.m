@@ -3,16 +3,17 @@ function ProcessImageStack(rootFolder, saveFolder, blankExposureTime, crossExpos
 % Calculate constant used for birefringence calculation normalization
 crossMultiple = crossExposureTime / blankExposureTime;
 
-% Name of the save file
-imageName = split(rootFolder,{'/', '\'});
-imageName = imageName(end);
-
 % Names of Things
 suffix = ".czi";
 blankPrefix = "blank";
 wlBlankPrefix = "HH_blank";
 wlPrefix = "HH";
 savePrefix = "_stitch_save.mat";
+stitchedSuffix = "_Stitched.czi";
+
+% Name of the save file
+imageName = split(rootFolder,{'/', '\'});
+imageName = imageName(end) + stitchedSuffix;
 
 % How is this calculated??????? does it ever change???
 WL_thresh = 0.86;
@@ -27,7 +28,7 @@ optimizer.MaximumIterations = 300;
 variablesToSave = {'HH_norm','aligned','sample_std','dirImage','rSquared', ...
     'lin_reta','biref','WL_thresh'};
 
-if (isempty(wlBlank))
+if (isempty(blankWLAv))
     
     blankFolder = split(rootFolder,{'/', '\'});
     blankFolder = join(blankFolder(1:end-1), '/') + "/";
