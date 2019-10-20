@@ -7,7 +7,6 @@ roiFolders = roiFolders(roiFolders ~= "." & roiFolders ~= "..");
 
 numROIs = length(roiFolders);
 
-
 % Make Folder to hold save files
 saveFolder = rootFolder + "SaveFiles/";
 mkdir(saveFolder);
@@ -35,7 +34,7 @@ for k = 1 : numROIs
     % Current folder path
     currFolderPath = rootFolder + roiFolders(k) + "/";
     
-    ProcessImageStack(currFolderPath, blankExposureTime, crossExposureTime, numAngles, blankWLAv);
+    ProcessImageStack(currFolderPath, saveFolder, blankExposureTime, crossExposureTime, numAngles, blankWLAv);
     
 end % For each file
 
