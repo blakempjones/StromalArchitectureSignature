@@ -9,7 +9,7 @@ blankPrefix = "blank";
 wlBlankPrefix = "HH_blank";
 wlPrefix = "HH";
 savePrefix = "_stitch_save.mat";
-stitchedSuffix = "_Stitched.czi";
+stitchedSuffix = "_Stitched";
 
 % Name of the save file
 imageName = split(rootFolder,{'/', '\'});
