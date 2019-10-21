@@ -13,7 +13,7 @@ stitchedSuffix = "_Stitched";
 
 % Name of the save file
 imageName = split(rootFolder,{'/', '\'});
-imageName = imageName(end) + stitchedSuffix;
+imageName = imageName(end - 1) + stitchedSuffix;
 
 % How is this calculated??????? does it ever change???
 WL_thresh = 0.86;
@@ -78,10 +78,13 @@ for i = 1:numAngles
     
     % Compute the registration transform using the middle image as
     % the reference.
-    tform(i) = imregtform(temp_target(co_row_start:co_row_stop,co_col_start:co_col_stop), ref(co_row_start:co_row_stop,co_col_start:co_col_stop), 'translation', optimizer, metric);
-    
+    try
+        tform(i) = imregtform(temp_target(co_row_start:co_row_stop,co_col_start:co_col_stop), ref(co_row_start:co_row_stop,co_col_start:co_col_stop), 'translation', optimizer, metric);
+    catch
+        return;
+    end
     % Align the image
-    crossStack(:,:,i) = imwarp(squeeze(crossStack(:,:,i)),tform(i),'OutputView',sizeRef);
+    crossStack(:,:,i) = imwarp(squeeze(crossStack(:,:,i)),tform(i),'OutputView',imref2d(sizeRef));
     
     % Why is this commented out?
     %crossStack(:,:,i) = crossStack(:,:,i) - blankAv(i);
@@ -93,39 +96,39 @@ HH_norm =regWL{1,1}{1,1};
 
 % Align the whitelight with the middle PLLM image
 tformHH = imregtform(HH_norm(co_row_start:co_row_stop,co_col_start:co_col_stop), ref(co_row_start:co_row_stop,co_col_start:co_col_stop), 'translation', optimizer, metric);
-HH_norm = imwarp(HH_norm,tformHH,'OutputView',sizeRef);
+HH_norm = imwarp(HH_norm,tformHH,'OutputView',imref2d(sizeRef));
 
 % Normalize the whitelight by the whitelight average intensity
 HH_norm = double(HH_norm)./blankWLAv;
 
 %Standard Deviation Image
-clc; disp("Working on ROI: " + num2str(k) + "/" + num2str(numROIs));disp("      Calculating Standard Deviation Image");
+clc; disp("      Calculating Standard Deviation Image");
 sample_std = std(crossStack, 0, 3);
 
 %Direction
-clc; disp("Working on ROI: " + num2str(k) + "/" + num2str(numROIs));disp("      Calculating Direction Image");
+clc; disp("      Calculating Direction Image");
 [~, dirImage] = max(crossStack, [], 3);
 
 %Alignment Image
-clc; disp("Working on ROI: " + num2str(k) + "/" + num2str(numROIs));disp("      Calculating Alignment Image");
+clc; disp("      Calculating Alignment Image");
 aligned = ComputeAlignment(dirImage,2);
 
 %R2 Image
-clc; disp("Working on ROI: " + num2str(k) + "/" + num2str(numROIs));disp("      Calculating R2 Image");
-rSquared = ComputeRSquared(crossStack);
+clc; disp("      Calculating R2 Image");
+rSquared = ComputeRSquared(crossStack, 5, 90, 5);
 
 % Period Image
-%clc; disp("Working on ROI: " + num2str(k) + "/" + num2str(numROIs));disp("      Calculating Period Image");
+%clc; disp("      Calculating Period Image");
 %period = ComputePeriod(crossStack);
 
 % !?!?!?!?!?!?!?!?!!?!?!? explanation of random numbers?!?
 % Retardance Image
-clc; disp("Working on ROI: " + num2str(k) + "/" + num2str(numROIs));disp("      Calculating Retardance/Birefringence Image");
+clc; disp("      Calculating Retardance/Birefringence Image");
 lin_reta = real(2*asind(sqrt(max(double(crossStack),[],3)./(blankWLAv*crossMultiple))));
 biref = real(633*asin(sqrt(max(double(crossStack),[],3)./(blankWLAv*crossMultiple))))/(pi*5000);
 
 %Save
-clc; disp("Working on ROI: " + num2str(k) + "/" + num2str(numROIs));
+clc; 
 disp("      Saving");
 save(saveFolder + imageName + savePrefix, variablesToSave{:}, '-mat')
 

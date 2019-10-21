@@ -3,7 +3,7 @@ function ProcessMultipleStacks(rootFolder, blankExposureTime, crossExposureTime,
 % Get list of folders in the rootFolder
 roiFolders = dir(rootFolder);
 roiFolders = {roiFolders([roiFolders.isdir]).name};
-roiFolders = roiFolders(roiFolders ~= "." & roiFolders ~= "..");
+roiFolders = roiFolders(roiFolders ~= "." & roiFolders ~= ".." & roiFolders ~= "SaveFiles");
 
 numROIs = length(roiFolders);
 
