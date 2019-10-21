@@ -15,6 +15,8 @@ mkdir(saveFolder);
 suffix = ".czi";
 blankPrefix = "blank";
 wlBlankPrefix = "HH_blank";
+saveSuffix = "_stitch_save.mat";
+stitchedSuffix = "_Stitched";
 
 % Load in and find averages of crossed polarizer blanks
 regBlank = bfopen(char(rootFolder+blankPrefix+suffix));
@@ -34,7 +36,11 @@ for k = 1 : numROIs
     % Current folder path
     currFolderPath = rootFolder + roiFolders(k) + "/";
     
-    ProcessImageStack(currFolderPath, saveFolder, blankExposureTime, crossExposureTime, numAngles, blankWLAv);
+    if (~isfile(saveFolder + roiFolders(k) + stitchedSuffix + saveSuffix))
+            
+        ProcessImageStack(currFolderPath, saveFolder, blankExposureTime, crossExposureTime, numAngles, blankWLAv);
+        
+    end
     
 end % For each file
 

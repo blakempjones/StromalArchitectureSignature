@@ -15,7 +15,7 @@ stitchedSuffix = "_Stitched";
 imageName = split(rootFolder,{'/', '\'});
 imageName = imageName(end - 1) + stitchedSuffix;
 
-% How is this calculated??????? does it ever change???
+% Empirically found for 5 micron thick FFPE slides
 WL_thresh = 0.86;
 
 % Image registration configuration
@@ -80,7 +80,13 @@ for i = 1:numAngles
     % the reference.
     try
         tform(i) = imregtform(temp_target(co_row_start:co_row_stop,co_col_start:co_col_stop), ref(co_row_start:co_row_stop,co_col_start:co_col_stop), 'translation', optimizer, metric);
-    catch
+    catch ex
+        size(temp_target)
+        size(ref)
+        imageName
+        rootFolder
+        isfile(char(rootFolder+imageName+suffix))
+        %error(ex.message)
         return;
     end
     % Align the image
@@ -121,11 +127,14 @@ rSquared = ComputeRSquared(crossStack, 5, 90, 5);
 %clc; disp("      Calculating Period Image");
 %period = ComputePeriod(crossStack);
 
-% !?!?!?!?!?!?!?!?!!?!?!? explanation of random numbers?!?
 % Retardance Image
 clc; disp("      Calculating Retardance/Birefringence Image");
+
+wavelength = 633; %nm
+thickness = 5000; %nm
+
 lin_reta = real(2*asind(sqrt(max(double(crossStack),[],3)./(blankWLAv*crossMultiple))));
-biref = real(633*asin(sqrt(max(double(crossStack),[],3)./(blankWLAv*crossMultiple))))/(pi*5000);
+biref = real(wavelength*asin(sqrt(max(double(crossStack),[],3)./(blankWLAv*crossMultiple))))/(pi*thickness);
 
 %Save
 clc; 
