@@ -1,4 +1,4 @@
-function ProcessImageStack(rootFolder, saveFolder, blankExposureTime, crossExposureTime, numAngles, blankWLAv)
+function ProcessImageStack(rootFolder, saveFolder, blankExposureTime, crossExposureTime, numAngles, blankWLAv, saveStack)
 
 % Calculate constant used for birefringence calculation normalization
 crossMultiple = crossExposureTime / blankExposureTime;
@@ -28,10 +28,14 @@ optimizer.MaximumIterations = 300;
 variablesToSave = {'HH_norm','aligned','sample_std','dirImage','rSquared', ...
     'lin_reta','biref','WL_thresh'};
 
+if (saveStack)
+    variablesToSave{end+1} = 'crossStack';
+end
+
 if (isempty(blankWLAv))
     
     blankFolder = split(rootFolder,{'/', '\'});
-    blankFolder = join(blankFolder(1:end-1), '/') + "/";
+    blankFolder = join(blankFolder(1:end-2), '/') + "/";
     
     % Load in and find averages of crossed polarizer blanks
     regBlank = bfopen(char(blankFolder+blankPrefix+suffix));
@@ -60,10 +64,11 @@ for i = 1:numAngles
 end
 
 % Region to use for the image registration
-co_col_start = 750;
-co_col_stop = 1250;
-co_row_start = 750;
-co_row_stop = 1250;
+regWindowSize = 250;
+co_row_start = floor(sizeRef(1)/2) - regWindowSize;
+co_row_stop = floor(sizeRef(1)/2) + regWindowSize;
+co_col_start = floor(sizeRef(2)/2) - regWindowSize;
+co_col_stop = floor(sizeRef(2)/2) + regWindowSize;
 
 % Define the reference image used for the image registration
 refNumber = floor(numAngles/2.0);
@@ -139,6 +144,6 @@ biref = real(wavelength*asin(sqrt(max(double(crossStack),[],3)./(blankWLAv*cross
 %Save
 clc; 
 disp("      Saving");
-save(saveFolder + imageName + savePrefix, variablesToSave{:}, '-mat')
+save(saveFolder + imageName + savePrefix, variablesToSave{:}, '-v7.3', '-nocompression')
 
 end
