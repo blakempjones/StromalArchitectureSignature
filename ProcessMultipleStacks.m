@@ -1,4 +1,4 @@
-function ProcessMultipleStacks(rootFolder, blankExposureTime, crossExposureTime, numAngles)
+function ProcessMultipleStacks(rootFolder, blankExposureTime, crossExposureTime, numAngles, saveStack)
 
 % Get list of folders in the rootFolder
 roiFolders = dir(rootFolder);
@@ -38,7 +38,7 @@ for k = 1 : numROIs
     
     if (~isfile(saveFolder + roiFolders(k) + stitchedSuffix + saveSuffix))
             
-        ProcessImageStack(currFolderPath, saveFolder, blankExposureTime, crossExposureTime, numAngles, blankWLAv);
+        ProcessImageStack(currFolderPath, saveFolder, blankExposureTime, crossExposureTime, numAngles, blankWLAv, saveStack);
         
     end
     

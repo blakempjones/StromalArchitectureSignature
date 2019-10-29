@@ -122,7 +122,7 @@ clc; disp("      Calculating Direction Image");
 
 %Alignment Image
 clc; disp("      Calculating Alignment Image");
-aligned = ComputeAlignment(dirImage,2);
+aligned = ComputeAlignment(dirImage, size(crossStack, 3), 2);
 
 %R2 Image
 clc; disp("      Calculating R2 Image");

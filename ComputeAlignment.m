@@ -1,4 +1,4 @@
-function alignmentMatrix = ComputeAlignment(dirImage, nhoodSize)
+function alignmentMatrix = ComputeAlignment(dirImage, dirRange, nhoodSize)
 %
 % Computes the maximum difference in the diretion of the optical axis for
 % the neighbourhood around each pixel. Used in the alignment score outlined
