@@ -1,21 +1,22 @@
-function comboMatrix = CalculateComboPicture(fileName, saveFolder, nhoodSize)
+function CalculateComboPicture(fileName, saveFolder, nhoodSize)
 
 saveSuffix = "_SAS.mat";
 
 load(fileName);
 
-sampleName = split(fileName, {'/','\'});
-sampleName = sampleName(end-1); % Assumes slash at the end of load
-sampleName = split(sampleName, '_');
-sampleName = sampleName(1);
-
-sample_std(HH_norm > WL_thresh) = 0;
-aligned(HH_norm > WL_thresh) = 10;
-rSquared(HH_norm > WL_thresh) = 0;
+sampleName = GetSectionFromPath(fileName, "end", [], 2, '_'); % Change 2 back to 1
+sampleName = sampleName{1};
+%sample_std(HH_norm > WL_thresh) = 0;
+%aligned(HH_norm > WL_thresh) = 10;
+%rSquared(HH_norm > WL_thresh) = 0;
 
 imgSize = size(sample_std);
 
 sasImage = zeros(imgSize);
+if (isfile(saveFolder + sampleName + saveSuffix))
+    return
+end
+
 for i = 1:imgSize(1)
     
     if(mod(i,100) == 0)
